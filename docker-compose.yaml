@@ -1,0 +1,17 @@
+version: '3'
+networks:
+  nikki-network:
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nikki_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./schema/:/docker-entrypoint-initdb.d/
+    ports:
+      - 3306:3306
+    networks:
+      - nikki-network
