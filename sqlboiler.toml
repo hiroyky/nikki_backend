@@ -1,0 +1,13 @@
+pkgname="dbmodel"
+output="domain/dbmodel"
+add-global-variants=true
+
+[mysql]
+dbname      = "nikki_db"
+host        = "127.0.0.1"
+port        = 3306
+user        = "root"
+pass        = "password"
+blacklist   = []
+whitelist   = []
+sslmode     = "false"
