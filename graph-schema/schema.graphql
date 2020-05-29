@@ -1,0 +1,22 @@
+type Query {
+    article(id: ID!): Article
+
+}
+
+type Article implements Node {
+    id: ID!
+    title: String!
+    body: String!
+    description: String!
+    publishStatus: Int!
+    thumbnailImage: String!
+    postedAt: Time!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+interface Node {
+    id: ID!
+}
+
+scalar Time
