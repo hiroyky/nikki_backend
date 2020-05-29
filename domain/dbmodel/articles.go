@@ -23,31 +23,40 @@ import (
 
 // Article is an object representing the database table.
 type Article struct {
-	ArticleID int       `boil:"article_id" json:"article_id" toml:"article_id" yaml:"article_id"`
-	Title     string    `boil:"title" json:"title" toml:"title" yaml:"title"`
-	Body      string    `boil:"body" json:"body" toml:"body" yaml:"body"`
-	PostedAt  time.Time `boil:"posted_at" json:"posted_at" toml:"posted_at" yaml:"posted_at"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	ArticleID      int       `boil:"article_id" json:"article_id" toml:"article_id" yaml:"article_id"`
+	Title          string    `boil:"title" json:"title" toml:"title" yaml:"title"`
+	Body           string    `boil:"body" json:"body" toml:"body" yaml:"body"`
+	Description    string    `boil:"description" json:"description" toml:"description" yaml:"description"`
+	PublishStatus  int       `boil:"publish_status" json:"publish_status" toml:"publish_status" yaml:"publish_status"`
+	ThumbnailImage string    `boil:"thumbnail_image" json:"thumbnail_image" toml:"thumbnail_image" yaml:"thumbnail_image"`
+	PostedAt       time.Time `boil:"posted_at" json:"posted_at" toml:"posted_at" yaml:"posted_at"`
+	CreatedAt      time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt      time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *articleR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L articleL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var ArticleColumns = struct {
-	ArticleID string
-	Title     string
-	Body      string
-	PostedAt  string
-	CreatedAt string
-	UpdatedAt string
+	ArticleID      string
+	Title          string
+	Body           string
+	Description    string
+	PublishStatus  string
+	ThumbnailImage string
+	PostedAt       string
+	CreatedAt      string
+	UpdatedAt      string
 }{
-	ArticleID: "article_id",
-	Title:     "title",
-	Body:      "body",
-	PostedAt:  "posted_at",
-	CreatedAt: "created_at",
-	UpdatedAt: "updated_at",
+	ArticleID:      "article_id",
+	Title:          "title",
+	Body:           "body",
+	Description:    "description",
+	PublishStatus:  "publish_status",
+	ThumbnailImage: "thumbnail_image",
+	PostedAt:       "posted_at",
+	CreatedAt:      "created_at",
+	UpdatedAt:      "updated_at",
 }
 
 // Generated where
@@ -106,19 +115,25 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 }
 
 var ArticleWhere = struct {
-	ArticleID whereHelperint
-	Title     whereHelperstring
-	Body      whereHelperstring
-	PostedAt  whereHelpertime_Time
-	CreatedAt whereHelpertime_Time
-	UpdatedAt whereHelpertime_Time
+	ArticleID      whereHelperint
+	Title          whereHelperstring
+	Body           whereHelperstring
+	Description    whereHelperstring
+	PublishStatus  whereHelperint
+	ThumbnailImage whereHelperstring
+	PostedAt       whereHelpertime_Time
+	CreatedAt      whereHelpertime_Time
+	UpdatedAt      whereHelpertime_Time
 }{
-	ArticleID: whereHelperint{field: "`articles`.`article_id`"},
-	Title:     whereHelperstring{field: "`articles`.`title`"},
-	Body:      whereHelperstring{field: "`articles`.`body`"},
-	PostedAt:  whereHelpertime_Time{field: "`articles`.`posted_at`"},
-	CreatedAt: whereHelpertime_Time{field: "`articles`.`created_at`"},
-	UpdatedAt: whereHelpertime_Time{field: "`articles`.`updated_at`"},
+	ArticleID:      whereHelperint{field: "`articles`.`article_id`"},
+	Title:          whereHelperstring{field: "`articles`.`title`"},
+	Body:           whereHelperstring{field: "`articles`.`body`"},
+	Description:    whereHelperstring{field: "`articles`.`description`"},
+	PublishStatus:  whereHelperint{field: "`articles`.`publish_status`"},
+	ThumbnailImage: whereHelperstring{field: "`articles`.`thumbnail_image`"},
+	PostedAt:       whereHelpertime_Time{field: "`articles`.`posted_at`"},
+	CreatedAt:      whereHelpertime_Time{field: "`articles`.`created_at`"},
+	UpdatedAt:      whereHelpertime_Time{field: "`articles`.`updated_at`"},
 }
 
 // ArticleRels is where relationship names are stored.
@@ -138,8 +153,8 @@ func (*articleR) NewStruct() *articleR {
 type articleL struct{}
 
 var (
-	articleAllColumns            = []string{"article_id", "title", "body", "posted_at", "created_at", "updated_at"}
-	articleColumnsWithoutDefault = []string{"title", "body", "posted_at", "created_at", "updated_at"}
+	articleAllColumns            = []string{"article_id", "title", "body", "description", "publish_status", "thumbnail_image", "posted_at", "created_at", "updated_at"}
+	articleColumnsWithoutDefault = []string{"title", "body", "description", "publish_status", "thumbnail_image", "posted_at", "created_at", "updated_at"}
 	articleColumnsWithDefault    = []string{"article_id"}
 	articlePrimaryKeyColumns     = []string{"article_id"}
 )

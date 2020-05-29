@@ -568,7 +568,7 @@ func testArticlesSelect(t *testing.T) {
 }
 
 var (
-	articleDBTypes = map[string]string{`ArticleID`: `int`, `Title`: `text`, `Body`: `text`, `PostedAt`: `datetime`, `CreatedAt`: `timestamp`, `UpdatedAt`: `timestamp`}
+	articleDBTypes = map[string]string{`ArticleID`: `int`, `Title`: `text`, `Body`: `text`, `Description`: `text`, `PublishStatus`: `int`, `ThumbnailImage`: `text`, `PostedAt`: `datetime`, `CreatedAt`: `timestamp`, `UpdatedAt`: `timestamp`}
 	_              = bytes.MinRead
 )
 
