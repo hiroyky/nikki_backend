@@ -12,7 +12,7 @@ type environment struct {
 	DatabaseDBName   string `envconfig:"DATABASE_DB_NAME"`
 	DatabasePassword string `envconfig:"DATABASE_PASSWORD"`
 	DebugMode        bool   `envconfig:"DEBUG_MODE" default:"false"`
-	Port             string `envconfig:"PORT"`
+	Port             string `envconfig:"PORT" default:"8080"`
 }
 
 var Env environment
