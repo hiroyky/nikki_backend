@@ -12,3 +12,6 @@ genmodel:
 generate:
 	go generate ./
 	go generate ./...
+
+fmt:
+	go fmt ./...
