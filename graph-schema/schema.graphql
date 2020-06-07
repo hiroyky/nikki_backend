@@ -19,13 +19,13 @@ type Article implements Node {
 }
 
 type ArticleEdge implements Edge {
-    cursor: String
+    cursor: String!
     node: Article!
 }
 
 type ArticleConnection implements Connection {
     pageInfo: PageInfo!
-    edges: [Edge]
+    edges: [ArticleEdge]
     nodes: [Article]    
 }
 
@@ -44,7 +44,7 @@ interface Connection {
 }
 
 interface Edge {
-    cursor: String
+    cursor: String!
     node: Node!
 }
 

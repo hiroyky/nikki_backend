@@ -34,15 +34,15 @@ type Article struct {
 func (Article) IsNode() {}
 
 type ArticleConnection struct {
-	PageInfo *PageInfo  `json:"pageInfo"`
-	Edges    []Edge     `json:"edges"`
-	Nodes    []*Article `json:"nodes"`
+	PageInfo *PageInfo      `json:"pageInfo"`
+	Edges    []*ArticleEdge `json:"edges"`
+	Nodes    []*Article     `json:"nodes"`
 }
 
 func (ArticleConnection) IsConnection() {}
 
 type ArticleEdge struct {
-	Cursor *string  `json:"cursor"`
+	Cursor string   `json:"cursor"`
 	Node   *Article `json:"node"`
 }
 
