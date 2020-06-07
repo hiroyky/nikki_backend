@@ -340,13 +340,13 @@ type Article implements Node {
 }
 
 type ArticleEdge implements Edge {
-    cursor: String
+    cursor: String!
     node: Article!
 }
 
 type ArticleConnection implements Connection {
     pageInfo: PageInfo!
-    edges: [Edge]
+    edges: [ArticleEdge]
     nodes: [Article]    
 }
 
@@ -365,7 +365,7 @@ interface Connection {
 }
 
 interface Edge {
-    cursor: String
+    cursor: String!
     node: Node!
 }
 
@@ -817,9 +817,9 @@ func (ec *executionContext) _ArticleConnection_edges(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]gqlmodel.Edge)
+	res := resTmp.([]*gqlmodel.ArticleEdge)
 	fc.Result = res
-	return ec.marshalOEdge2ᚕgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐEdge(ctx, field.Selections, res)
+	return ec.marshalOArticleEdge2ᚕᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐArticleEdge(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ArticleConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ArticleConnection) (ret graphql.Marshaler) {
@@ -877,11 +877,14 @@ func (ec *executionContext) _ArticleEdge_cursor(ctx context.Context, field graph
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ArticleEdge_node(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ArticleEdge) (ret graphql.Marshaler) {
@@ -2519,6 +2522,9 @@ func (ec *executionContext) _ArticleEdge(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = graphql.MarshalString("ArticleEdge")
 		case "cursor":
 			out.Values[i] = ec._ArticleEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "node":
 			out.Values[i] = ec._ArticleEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3281,37 +3287,11 @@ func (ec *executionContext) marshalOArticle2ᚖgithubᚗcomᚋhiroykyᚋnikki_ba
 	return ec._Article(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
-	return graphql.UnmarshalBoolean(v)
+func (ec *executionContext) marshalOArticleEdge2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐArticleEdge(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ArticleEdge) graphql.Marshaler {
+	return ec._ArticleEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
-	return graphql.MarshalBoolean(v)
-}
-
-func (ec *executionContext) unmarshalOBoolean2ᚖbool(ctx context.Context, v interface{}) (*bool, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOBoolean2bool(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast.SelectionSet, v *bool) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec.marshalOBoolean2bool(ctx, sel, *v)
-}
-
-func (ec *executionContext) marshalOEdge2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐEdge(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Edge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Edge(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOEdge2ᚕgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐEdge(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Edge) graphql.Marshaler {
+func (ec *executionContext) marshalOArticleEdge2ᚕᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐArticleEdge(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ArticleEdge) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3338,7 +3318,7 @@ func (ec *executionContext) marshalOEdge2ᚕgithubᚗcomᚋhiroykyᚋnikki_backe
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOEdge2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalOArticleEdge2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐArticleEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3349,6 +3329,36 @@ func (ec *executionContext) marshalOEdge2ᚕgithubᚗcomᚋhiroykyᚋnikki_backe
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) marshalOArticleEdge2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlmodelᚐArticleEdge(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ArticleEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ArticleEdge(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
+	return graphql.UnmarshalBoolean(v)
+}
+
+func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
+	return graphql.MarshalBoolean(v)
+}
+
+func (ec *executionContext) unmarshalOBoolean2ᚖbool(ctx context.Context, v interface{}) (*bool, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOBoolean2bool(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast.SelectionSet, v *bool) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
