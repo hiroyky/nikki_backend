@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/hiroyky/nikki_backend/config"
+	"github.com/hiroyky/nikki_backend/infrastructure"
 	"log"
 	"net/http"
 
@@ -16,6 +17,19 @@ func main() {
 	if config.Env.DebugMode {
 		log.Println("Debug mode")
 	}
+
+	db, err := infrastructure.OpenDatabase(
+		config.Env.DatabaseHostName,
+		config.Env.DatabasePort,
+		config.Env.DatabaseDBName,
+		config.Env.DatabaseUserName,
+		config.Env.DatabasePassword,
+		config.Env.DebugMode,
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 
 	srv := handler.NewDefaultServer(resolver.NewExecutableSchema(resolver.Config{Resolvers: &resolver.Resolver{}}))
 
