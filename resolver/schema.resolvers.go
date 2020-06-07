@@ -5,11 +5,10 @@ package resolver
 
 import (
 	"context"
-	"fmt"
-	"github.com/hiroyky/nikki_backend/domain/dbmodel"
-	"github.com/hiroyky/nikki_backend/lib"
 
+	"github.com/hiroyky/nikki_backend/domain/dbmodel"
 	"github.com/hiroyky/nikki_backend/domain/gqlmodel"
+	"github.com/hiroyky/nikki_backend/lib"
 )
 
 func (r *queryResolver) Article(ctx context.Context, id string) (*gqlmodel.Article, error) {
@@ -27,7 +26,12 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*gqlmodel.Artic
 }
 
 func (r *queryResolver) Articles(ctx context.Context) (*gqlmodel.ArticleConnection, error) {
-	panic(fmt.Errorf("not implemented"))
+	articles, err := dbmodel.Articles().AllG(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.GenArticleConnection(articles), nil
 }
 
 // Query returns QueryResolver implementation.

@@ -18,3 +18,31 @@ func GenArticle(article *dbmodel.Article) *Article {
 		UpdatedAt:      article.UpdatedAt,
 	}
 }
+
+func GenArticleConnection(articles []*dbmodel.Article) *ArticleConnection {
+	return &ArticleConnection{
+		PageInfo: &PageInfo{},
+		Edges:    genArticleEdges(articles),
+		Nodes:    genArticleNodes(articles),
+	}
+}
+
+func genArticleNodes(articles []*dbmodel.Article) []*Article {
+	result := make([]*Article, len(articles))
+	for i, v := range articles {
+		result[i] = GenArticle(v)
+	}
+	return result
+}
+
+func genArticleEdges(articles []*dbmodel.Article) []*ArticleEdge {
+	result := make([]*ArticleEdge, len(articles))
+	for i, v := range articles {
+		dest := GenArticle(v)
+		result[i] = &ArticleEdge{
+			Cursor: dest.ID,
+			Node:   dest,
+		}
+	}
+	return result
+}
