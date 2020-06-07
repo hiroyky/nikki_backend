@@ -8,3 +8,7 @@ dev:
 
 genmodel:
 	go run github.com/volatiletech/sqlboiler mysql
+
+generate:
+	go generate ./
+	go generate ./...
