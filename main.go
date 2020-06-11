@@ -2,13 +2,12 @@ package main
 
 import (
 	"github.com/hiroyky/nikki_backend/config"
-	"github.com/hiroyky/nikki_backend/infrastructure"
+	"github.com/hiroyky/nikki_backend/infrastructures"
 	"log"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/hiroyky/nikki_backend/resolver"
 )
 
 const defaultPort = "8080"
@@ -18,7 +17,7 @@ func main() {
 		log.Println("Debug mode")
 	}
 
-	db, err := infrastructure.OpenDatabase(
+	db, err := infrastructures.OpenDatabase(
 		config.Env.DatabaseHostName,
 		config.Env.DatabasePort,
 		config.Env.DatabaseDBName,
