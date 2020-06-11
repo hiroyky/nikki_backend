@@ -5,8 +5,8 @@ schema:
 
 # Where should the generated server code go?
 exec:
-    filename: resolver/viewerresolver/generated.go
-    package: viewerresolver
+    filename: resolvers/viewerresolvers/generated.go
+    package: viewerresolvers
 
 #federation:
 #   filename: domain/gqlmodel/federation.go
@@ -20,8 +20,8 @@ model:
 # Where should the resolver implementations go?
 resolver:
     layout: follow-schema
-    dir: resolver/viewerresolver
-    package: viewerresolver
+    dir: resolvers/viewerresolvers
+    package: viewerresolvers
 
 # Optional: turn on use `gqlgen:"fieldName"` tags in your models
 # struct_tag: json

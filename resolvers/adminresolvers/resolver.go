@@ -1,4 +1,4 @@
-package adminresolver
+package adminresolvers
 
 // This file will not be regenerated automatically.
 //
