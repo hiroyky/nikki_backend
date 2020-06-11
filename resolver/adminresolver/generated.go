@@ -319,7 +319,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	&ast.Source{Name: "graph-schema/common.graphql", Input: `"""
+	&ast.Source{Name: "schema/graph-schema/common.graphql", Input: `"""
 Common
 """
 
@@ -349,7 +349,7 @@ type PageInfo {
 }
 
 scalar Time`, BuiltIn: false},
-	&ast.Source{Name: "graph-schema/admin.graphql", Input: `type Query {
+	&ast.Source{Name: "schema/graph-schema/admin.graphql", Input: `type Query {
     article(id: ID!): Article
     articles: ArticleConnection!
 }
