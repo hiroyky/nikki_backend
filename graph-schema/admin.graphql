@@ -1,0 +1,27 @@
+type Query {
+    article(id: ID!): Article
+    articles: ArticleConnection!
+}
+
+type Article implements Node {
+    id: ID!
+    title: String!
+    body: String!
+    description: String!
+    publishStatus: Int!
+    thumbnailImage: String!
+    postedAt: Time!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+type ArticleEdge implements Edge {
+    cursor: String!
+    node: Article!
+}
+
+type ArticleConnection implements Connection {
+    pageInfo: PageInfo!
+    edges: [ArticleEdge]
+    nodes: [Article]    
+}
