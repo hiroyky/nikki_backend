@@ -21,7 +21,7 @@ import (
 
 // region    ************************** generated!.gotpl **************************
 
-// NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interfaces.
+// NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 	return &executableSchema{
 		resolvers:  cfg.Resolvers,
@@ -323,17 +323,17 @@ var sources = []*ast.Source{
 Common
 """
 
-interfaces Node {
+interface Node {
     id: ID!
 }
 
-interfaces Connection {
+interface Connection {
     pageInfo: PageInfo!
     edges: [Edge]
     nodes: [Node]
 }
 
-interfaces Edge {
+interface Edge {
     cursor: String!
     node: Node!
 }
@@ -2354,7 +2354,7 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // endregion **************************** input.gotpl *****************************
 
-// region    ************************** interfaces.gotpl ***************************
+// region    ************************** interface.gotpl ***************************
 
 func (ec *executionContext) _Connection(ctx context.Context, sel ast.SelectionSet, obj adminmodel.Connection) graphql.Marshaler {
 	switch obj := (obj).(type) {
@@ -2404,7 +2404,7 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	}
 }
 
-// endregion ************************** interfaces.gotpl ***************************
+// endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
 
