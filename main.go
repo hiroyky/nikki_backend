@@ -2,13 +2,10 @@ package main
 
 import (
 	"github.com/hiroyky/nikki_backend/config"
-	"github.com/hiroyky/nikki_backend/infrastructure"
+	"github.com/hiroyky/nikki_backend/infrastructures"
+	"github.com/hiroyky/nikki_backend/interfaces"
 	"log"
 	"net/http"
-
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/hiroyky/nikki_backend/resolver"
 )
 
 const defaultPort = "8080"
@@ -18,7 +15,7 @@ func main() {
 		log.Println("Debug mode")
 	}
 
-	db, err := infrastructure.OpenDatabase(
+	db, err := infrastructures.OpenDatabase(
 		config.Env.DatabaseHostName,
 		config.Env.DatabasePort,
 		config.Env.DatabaseDBName,
@@ -31,10 +28,9 @@ func main() {
 	}
 	defer db.Close()
 
-	srv := handler.NewDefaultServer(resolver.NewExecutableSchema(resolver.Config{Resolvers: &resolver.Resolver{}}))
-
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	if err := interfaces.Engine.Run(); err != nil {
+		panic(err)
+	}
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", config.Env.Port)
 	log.Fatal(http.ListenAndServe(":"+config.Env.Port, nil))

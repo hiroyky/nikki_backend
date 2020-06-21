@@ -1,0 +1,30 @@
+"""
+Common
+"""
+
+interface Node {
+    id: ID!
+}
+
+interface Connection {
+    pageInfo: PageInfo!
+    edges: [Edge]
+    nodes: [Node]
+}
+
+interface Edge {
+    cursor: String!
+    node: Node!
+}
+
+type PageInfo {
+    page: Int!
+    paginationLength: Int!
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    totalCount: Int!
+    limit: Int!
+    offset: Int!
+}
+
+scalar Time

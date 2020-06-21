@@ -35,7 +35,7 @@ type tester interface {
 
 func TestMain(m *testing.M) {
 	if dbMain == nil {
-		fmt.Println("no dbMain tester interface was ready")
+		fmt.Println("no dbMain tester interfaces was ready")
 		os.Exit(-1)
 	}
 

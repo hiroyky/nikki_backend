@@ -1,6 +1,3 @@
-"""
-Nikki query
-"""
 type Query {
     article(id: ID!): Article
     articles: ArticleConnection!
@@ -11,10 +8,8 @@ type Article implements Node {
     title: String!
     body: String!
     description: String!
-    publishStatus: Int!
     thumbnailImage: String!
     postedAt: Time!
-    createdAt: Time!
     updatedAt: Time!
 }
 
@@ -28,34 +23,3 @@ type ArticleConnection implements Connection {
     edges: [ArticleEdge]
     nodes: [Article]    
 }
-
-"""
-Common
-"""
-
-interface Node {
-    id: ID!
-}
-
-interface Connection {
-    pageInfo: PageInfo!
-    edges: [Edge]
-    nodes: [Node]
-}
-
-interface Edge {
-    cursor: String!
-    node: Node!
-}
-
-type PageInfo {
-    page: Int!
-    paginationLength: Int!
-    hasNextPage: Boolean!
-    hasPreviousPage: Boolean!
-    totalCount: Int!
-    limit: Int!
-    offset: Int!
-}
-
-scalar Time

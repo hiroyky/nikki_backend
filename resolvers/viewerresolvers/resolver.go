@@ -1,4 +1,4 @@
-package resolver
+package viewerresolvers
 
 // This file will not be regenerated automatically.
 //
