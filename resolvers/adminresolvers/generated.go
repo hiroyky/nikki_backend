@@ -37,6 +37,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -67,6 +68,11 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	Mutation struct {
+		NewArticle    func(childComplexity int, input adminmodel.ArticleInput) int
+		UpdateArticle func(childComplexity int, id string, input adminmodel.ArticleInput) int
+	}
+
 	PageInfo struct {
 		HasNextPage      func(childComplexity int) int
 		HasPreviousPage  func(childComplexity int) int
@@ -83,6 +89,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type MutationResolver interface {
+	NewArticle(ctx context.Context, input adminmodel.ArticleInput) (*adminmodel.Article, error)
+	UpdateArticle(ctx context.Context, id string, input adminmodel.ArticleInput) (*adminmodel.Article, error)
+}
 type QueryResolver interface {
 	Article(ctx context.Context, id string) (*adminmodel.Article, error)
 	Articles(ctx context.Context) (*adminmodel.ArticleConnection, error)
@@ -201,6 +211,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ArticleEdge.Node(childComplexity), true
 
+	case "Mutation.newArticle":
+		if e.complexity.Mutation.NewArticle == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_newArticle_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.NewArticle(childComplexity, args["input"].(adminmodel.ArticleInput)), true
+
+	case "Mutation.updateArticle":
+		if e.complexity.Mutation.UpdateArticle == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateArticle_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateArticle(childComplexity, args["id"].(string), args["input"].(adminmodel.ArticleInput)), true
+
 	case "PageInfo.hasNextPage":
 		if e.complexity.PageInfo.HasNextPage == nil {
 			break
@@ -293,6 +327,20 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -354,6 +402,11 @@ scalar Time`, BuiltIn: false},
     articles: ArticleConnection!
 }
 
+type Mutation {
+    newArticle(input: ArticleInput!): Article!
+    updateArticle(id: ID!, input: ArticleInput!): Article!
+}
+
 type Article implements Node {
     id: ID!
     title: String!
@@ -364,6 +417,15 @@ type Article implements Node {
     postedAt: Time!
     createdAt: Time!
     updatedAt: Time!
+}
+
+input ArticleInput {
+    title: String!
+    body: String!
+    description: String!
+    publishStatus: Int!
+    thumbnailImage: String!
+    postedAt: Time!
 }
 
 type ArticleEdge implements Edge {
@@ -383,6 +445,42 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_newArticle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 adminmodel.ArticleInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNArticleInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateArticle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 adminmodel.ArticleInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNArticleInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -902,6 +1000,88 @@ func (ec *executionContext) _ArticleEdge_node(ctx context.Context, field graphql
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*adminmodel.Article)
+	fc.Result = res
+	return ec.marshalNArticle2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticle(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_newArticle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_newArticle_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().NewArticle(rctx, args["input"].(adminmodel.ArticleInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*adminmodel.Article)
+	fc.Result = res
+	return ec.marshalNArticle2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticle(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateArticle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateArticle_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateArticle(rctx, args["id"].(string), args["input"].(adminmodel.ArticleInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2352,6 +2532,54 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputArticleInput(ctx context.Context, obj interface{}) (adminmodel.ArticleInput, error) {
+	var it adminmodel.ArticleInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "title":
+			var err error
+			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "body":
+			var err error
+			it.Body, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "description":
+			var err error
+			it.Description, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "publishStatus":
+			var err error
+			it.PublishStatus, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "thumbnailImage":
+			var err error
+			it.ThumbnailImage, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "postedAt":
+			var err error
+			it.PostedAt, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2524,6 +2752,42 @@ func (ec *executionContext) _ArticleEdge(ctx context.Context, sel ast.SelectionS
 			}
 		case "node":
 			out.Values[i] = ec._ArticleEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var mutationImplementors = []string{"Mutation"}
+
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "newArticle":
+			out.Values[i] = ec._Mutation_newArticle(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateArticle":
+			out.Values[i] = ec._Mutation_updateArticle(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2921,6 +3185,10 @@ func (ec *executionContext) marshalNArticleConnection2ᚖgithubᚗcomᚋhiroyky�
 		return graphql.Null
 	}
 	return ec._ArticleConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNArticleInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleInput(ctx context.Context, v interface{}) (adminmodel.ArticleInput, error) {
+	return ec.unmarshalInputArticleInput(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

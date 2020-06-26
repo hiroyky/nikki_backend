@@ -10,6 +10,14 @@ import (
 	"github.com/hiroyky/nikki_backend/domain/gql/adminmodel"
 )
 
+func (r *mutationResolver) NewArticle(ctx context.Context, input adminmodel.ArticleInput) (*adminmodel.Article, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) UpdateArticle(ctx context.Context, id string, input adminmodel.ArticleInput) (*adminmodel.Article, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Article, error) {
 	panic(fmt.Errorf("not implemented"))
 }
@@ -18,7 +26,11 @@ func (r *queryResolver) Articles(ctx context.Context) (*adminmodel.ArticleConnec
 	panic(fmt.Errorf("not implemented"))
 }
 
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
