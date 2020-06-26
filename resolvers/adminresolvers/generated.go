@@ -69,8 +69,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		NewArticle    func(childComplexity int, input adminmodel.ArticleInput) int
-		UpdateArticle func(childComplexity int, id string, input adminmodel.ArticleInput) int
+		NewArticle    func(childComplexity int, input adminmodel.ArticleMutationInput) int
+		UpdateArticle func(childComplexity int, id string, input adminmodel.ArticleMutationInput) int
 	}
 
 	PageInfo struct {
@@ -85,17 +85,17 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Article  func(childComplexity int, id string) int
-		Articles func(childComplexity int) int
+		Articles func(childComplexity int, page *adminmodel.Pagination) int
 	}
 }
 
 type MutationResolver interface {
-	NewArticle(ctx context.Context, input adminmodel.ArticleInput) (*adminmodel.Article, error)
-	UpdateArticle(ctx context.Context, id string, input adminmodel.ArticleInput) (*adminmodel.Article, error)
+	NewArticle(ctx context.Context, input adminmodel.ArticleMutationInput) (*adminmodel.Article, error)
+	UpdateArticle(ctx context.Context, id string, input adminmodel.ArticleMutationInput) (*adminmodel.Article, error)
 }
 type QueryResolver interface {
 	Article(ctx context.Context, id string) (*adminmodel.Article, error)
-	Articles(ctx context.Context) (*adminmodel.ArticleConnection, error)
+	Articles(ctx context.Context, page *adminmodel.Pagination) (*adminmodel.ArticleConnection, error)
 }
 
 type executableSchema struct {
@@ -221,7 +221,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.NewArticle(childComplexity, args["input"].(adminmodel.ArticleInput)), true
+		return e.complexity.Mutation.NewArticle(childComplexity, args["input"].(adminmodel.ArticleMutationInput)), true
 
 	case "Mutation.updateArticle":
 		if e.complexity.Mutation.UpdateArticle == nil {
@@ -233,7 +233,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateArticle(childComplexity, args["id"].(string), args["input"].(adminmodel.ArticleInput)), true
+		return e.complexity.Mutation.UpdateArticle(childComplexity, args["id"].(string), args["input"].(adminmodel.ArticleMutationInput)), true
 
 	case "PageInfo.hasNextPage":
 		if e.complexity.PageInfo.HasNextPage == nil {
@@ -301,7 +301,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Articles(childComplexity), true
+		args, err := ec.field_Query_articles_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Articles(childComplexity, args["page"].(*adminmodel.Pagination)), true
 
 	}
 	return 0, false
@@ -396,15 +401,20 @@ type PageInfo {
     offset: Int!
 }
 
-scalar Time`, BuiltIn: false},
+scalar Time
+
+input Pagination {
+    Limit: Int
+    Offset: Int
+}`, BuiltIn: false},
 	&ast.Source{Name: "schema/graph-schema/admin.graphql", Input: `type Query {
     article(id: ID!): Article
-    articles: ArticleConnection!
+    articles(page: Pagination): ArticleConnection!
 }
 
 type Mutation {
-    newArticle(input: ArticleInput!): Article!
-    updateArticle(id: ID!, input: ArticleInput!): Article!
+    newArticle(input: ArticleMutationInput!): Article!
+    updateArticle(id: ID!, input: ArticleMutationInput!): Article!
 }
 
 type Article implements Node {
@@ -419,7 +429,7 @@ type Article implements Node {
     updatedAt: Time!
 }
 
-input ArticleInput {
+input ArticleMutationInput {
     title: String!
     body: String!
     description: String!
@@ -449,9 +459,9 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_newArticle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 adminmodel.ArticleInput
+	var arg0 adminmodel.ArticleMutationInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNArticleInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleInput(ctx, tmp)
+		arg0, err = ec.unmarshalNArticleMutationInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleMutationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -471,9 +481,9 @@ func (ec *executionContext) field_Mutation_updateArticle_args(ctx context.Contex
 		}
 	}
 	args["id"] = arg0
-	var arg1 adminmodel.ArticleInput
+	var arg1 adminmodel.ArticleMutationInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNArticleInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleInput(ctx, tmp)
+		arg1, err = ec.unmarshalNArticleMutationInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleMutationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -507,6 +517,20 @@ func (ec *executionContext) field_Query_article_args(ctx context.Context, rawArg
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_articles_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *adminmodel.Pagination
+	if tmp, ok := rawArgs["page"]; ok {
+		arg0, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
 	return args, nil
 }
 
@@ -1040,7 +1064,7 @@ func (ec *executionContext) _Mutation_newArticle(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().NewArticle(rctx, args["input"].(adminmodel.ArticleInput))
+		return ec.resolvers.Mutation().NewArticle(rctx, args["input"].(adminmodel.ArticleMutationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1081,7 +1105,7 @@ func (ec *executionContext) _Mutation_updateArticle(ctx context.Context, field g
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateArticle(rctx, args["id"].(string), args["input"].(adminmodel.ArticleInput))
+		return ec.resolvers.Mutation().UpdateArticle(rctx, args["id"].(string), args["input"].(adminmodel.ArticleMutationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1389,9 +1413,16 @@ func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.C
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_articles_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Articles(rctx)
+		return ec.resolvers.Query().Articles(rctx, args["page"].(*adminmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2532,8 +2563,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputArticleInput(ctx context.Context, obj interface{}) (adminmodel.ArticleInput, error) {
-	var it adminmodel.ArticleInput
+func (ec *executionContext) unmarshalInputArticleMutationInput(ctx context.Context, obj interface{}) (adminmodel.ArticleMutationInput, error) {
+	var it adminmodel.ArticleMutationInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -2571,6 +2602,30 @@ func (ec *executionContext) unmarshalInputArticleInput(ctx context.Context, obj 
 		case "postedAt":
 			var err error
 			it.PostedAt, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj interface{}) (adminmodel.Pagination, error) {
+	var it adminmodel.Pagination
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "Limit":
+			var err error
+			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Offset":
+			var err error
+			it.Offset, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3187,8 +3242,8 @@ func (ec *executionContext) marshalNArticleConnection2ᚖgithubᚗcomᚋhiroyky�
 	return ec._ArticleConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNArticleInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleInput(ctx context.Context, v interface{}) (adminmodel.ArticleInput, error) {
-	return ec.unmarshalInputArticleInput(ctx, v)
+func (ec *executionContext) unmarshalNArticleMutationInput2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐArticleMutationInput(ctx context.Context, v interface{}) (adminmodel.ArticleMutationInput, error) {
+	return ec.unmarshalInputArticleMutationInput(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
@@ -3624,6 +3679,41 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOInt2int(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOInt2int(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOPagination2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐPagination(ctx context.Context, v interface{}) (adminmodel.Pagination, error) {
+	return ec.unmarshalInputPagination(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐPagination(ctx context.Context, v interface{}) (*adminmodel.Pagination, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOPagination2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐPagination(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

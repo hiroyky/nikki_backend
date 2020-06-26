@@ -28,3 +28,8 @@ type PageInfo {
 }
 
 scalar Time
+
+input Pagination {
+    Limit: Int
+    Offset: Int
+}

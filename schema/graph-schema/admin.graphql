@@ -1,11 +1,11 @@
 type Query {
     article(id: ID!): Article
-    articles: ArticleConnection!
+    articles(page: Pagination): ArticleConnection!
 }
 
 type Mutation {
-    newArticle(input: ArticleInput!): Article!
-    updateArticle(id: ID!, input: ArticleInput!): Article!
+    newArticle(input: ArticleMutationInput!): Article!
+    updateArticle(id: ID!, input: ArticleMutationInput!): Article!
 }
 
 type Article implements Node {
@@ -20,7 +20,7 @@ type Article implements Node {
     updatedAt: Time!
 }
 
-input ArticleInput {
+input ArticleMutationInput {
     title: String!
     body: String!
     description: String!

@@ -6,13 +6,14 @@ package adminresolvers
 import (
 	"context"
 	"fmt"
+
 	"github.com/hiroyky/nikki_backend/domain/gql/adminmodel"
 	"github.com/hiroyky/nikki_backend/lib"
 	"github.com/hiroyky/nikki_backend/presenter"
 	"github.com/hiroyky/nikki_backend/service"
 )
 
-func (r *mutationResolver) NewArticle(ctx context.Context, input adminmodel.ArticleInput) (*adminmodel.Article, error) {
+func (r *mutationResolver) NewArticle(ctx context.Context, input adminmodel.ArticleMutationInput) (*adminmodel.Article, error) {
 	article := presenter.ToDBArticleFromAdminArticleInput(&input)
 	dst, err := service.NewArticle(ctx, article)
 	if err != nil {
@@ -22,7 +23,7 @@ func (r *mutationResolver) NewArticle(ctx context.Context, input adminmodel.Arti
 	return presenter.ToGQLAdminArticleFromDBArticle(dst), nil
 }
 
-func (r *mutationResolver) UpdateArticle(ctx context.Context, id string, input adminmodel.ArticleInput) (*adminmodel.Article, error) {
+func (r *mutationResolver) UpdateArticle(ctx context.Context, id string, input adminmodel.ArticleMutationInput) (*adminmodel.Article, error) {
 	dbID, err := lib.DecodeGraphQLID(id)
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Art
 	return presenter.ToGQLAdminArticleFromDBArticle(dst), nil
 }
 
-func (r *queryResolver) Articles(ctx context.Context) (*adminmodel.ArticleConnection, error) {
+func (r *queryResolver) Articles(ctx context.Context, page *adminmodel.Pagination) (*adminmodel.ArticleConnection, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

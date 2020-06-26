@@ -6,7 +6,7 @@ import (
 	"github.com/hiroyky/nikki_backend/lib"
 )
 
-func ToDBArticleFromAdminArticleInput(input *adminmodel.ArticleInput) dbmodel.Article {
+func ToDBArticleFromAdminArticleInput(input *adminmodel.ArticleMutationInput) dbmodel.Article {
 	return dbmodel.Article{
 		Title:          input.Title,
 		Body:           input.Body,
