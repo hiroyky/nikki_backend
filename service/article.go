@@ -14,7 +14,7 @@ func NewArticle(ctx context.Context, article dbmodel.Article) (*dbmodel.Article,
 }
 
 func UpdateArticle(ctx context.Context, id int, article dbmodel.Article) (*dbmodel.Article, error) {
-	found, err := dbmodel.FindArticleG(ctx, id)
+	found, err := GetArticle(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -24,4 +24,8 @@ func UpdateArticle(ctx context.Context, id int, article dbmodel.Article) (*dbmod
 		return nil, err
 	}
 	return &article, nil
+}
+
+func GetArticle(ctx context.Context, id int) (*dbmodel.Article, error) {
+	return dbmodel.FindArticleG(ctx, id)
 }

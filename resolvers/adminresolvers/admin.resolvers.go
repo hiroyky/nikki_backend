@@ -37,7 +37,17 @@ func (r *mutationResolver) UpdateArticle(ctx context.Context, id string, input a
 }
 
 func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Article, error) {
-	panic(fmt.Errorf("not implemented"))
+	dbID, err := lib.DecodeGraphQLID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	dst, err := service.GetArticle(ctx, dbID)
+	if err != nil {
+		return nil, err
+	}
+
+	return presenter.ToGQLAdminArticleFromDBArticle(dst), nil
 }
 
 func (r *queryResolver) Articles(ctx context.Context) (*adminmodel.ArticleConnection, error) {
