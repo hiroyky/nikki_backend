@@ -6,19 +6,20 @@ package adminresolvers
 import (
 	"context"
 	"fmt"
-	"github.com/hiroyky/nikki_backend/domain/dbmodel"
 	"github.com/hiroyky/nikki_backend/domain/gql/adminmodel"
 	"github.com/hiroyky/nikki_backend/lib"
+	"github.com/hiroyky/nikki_backend/presenter"
 	"github.com/hiroyky/nikki_backend/service"
-	"github.com/volatiletech/sqlboiler/boil"
 )
 
 func (r *mutationResolver) NewArticle(ctx context.Context, input adminmodel.ArticleInput) (*adminmodel.Article, error) {
-	article := service.ToDBArticleFromAdminArticleInput(&input)
-	if err := article.InsertG(ctx, boil.Infer()); err != nil {
+	article := presenter.ToDBArticleFromAdminArticleInput(&input)
+	dst, err := service.NewArticle(ctx, article)
+	if err != nil {
 		return nil, err
 	}
-	return service.ToGQLAdminArticleFromDBArticle(article), nil
+
+	return presenter.ToGQLAdminArticleFromDBArticle(dst), nil
 }
 
 func (r *mutationResolver) UpdateArticle(ctx context.Context, id string, input adminmodel.ArticleInput) (*adminmodel.Article, error) {
@@ -27,20 +28,12 @@ func (r *mutationResolver) UpdateArticle(ctx context.Context, id string, input a
 		return nil, err
 	}
 
-	article, err := dbmodel.FindArticleG(ctx, dbID)
+	dst, err := service.UpdateArticle(ctx, dbID, presenter.ToDBArticleFromAdminArticleInput(&input))
 	if err != nil {
 		return nil, err
 	}
 
-	dst := service.UpdateDBArticleFromAdminArticleInput(article, &input)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := dst.UpdateG(ctx, boil.Infer()); err != nil {
-		return nil, err
-	}
-
-	return service.ToGQLAdminArticleFromDBArticle(dst), nil
+	return presenter.ToGQLAdminArticleFromDBArticle(dst), nil
 }
 
 func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Article, error) {

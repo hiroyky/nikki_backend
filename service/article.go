@@ -1,40 +1,27 @@
 package service
 
 import (
+	"context"
 	"github.com/hiroyky/nikki_backend/domain/dbmodel"
-	"github.com/hiroyky/nikki_backend/domain/gql/adminmodel"
-	"github.com/hiroyky/nikki_backend/lib"
+	"github.com/volatiletech/sqlboiler/boil"
 )
 
-func ToDBArticleFromAdminArticleInput(input *adminmodel.ArticleInput) *dbmodel.Article {
-	article := &dbmodel.Article{
-		Title:          input.Title,
-		Body:           input.Body,
-		Description:    input.Description,
-		PublishStatus:  input.PublishStatus,
-		ThumbnailImage: input.ThumbnailImage,
-		PostedAt:       input.PostedAt,
+func NewArticle(ctx context.Context, article dbmodel.Article) (*dbmodel.Article, error) {
+	if err := article.InsertG(ctx, boil.Infer()); err != nil {
+		return nil, err
 	}
-	return article
+	return &article, nil
 }
 
-func UpdateDBArticleFromAdminArticleInput(article *dbmodel.Article, input *adminmodel.ArticleInput) *dbmodel.Article {
-	dest := ToDBArticleFromAdminArticleInput(input)
-	dest.ArticleID = article.ArticleID
-	return dest
-}
-
-func ToGQLAdminArticleFromDBArticle(input *dbmodel.Article) *adminmodel.Article {
-	article := &adminmodel.Article{
-		ID:             lib.EncodeGraphQLID(dbmodel.TableNames.Articles, input.ArticleID),
-		Title:          input.Title,
-		Body:           input.Body,
-		Description:    input.Description,
-		PublishStatus:  input.PublishStatus,
-		ThumbnailImage: input.ThumbnailImage,
-		PostedAt:       input.PostedAt,
-		CreatedAt:      input.CreatedAt,
-		UpdatedAt:      input.UpdatedAt,
+func UpdateArticle(ctx context.Context, id int, article dbmodel.Article) (*dbmodel.Article, error) {
+	found, err := dbmodel.FindArticleG(ctx, id)
+	if err != nil {
+		return nil, err
 	}
-	return article
+
+	article.ArticleID = found.ArticleID
+	if _, err := article.UpdateG(ctx, boil.Infer()); err != nil {
+		return nil, err
+	}
+	return &article, nil
 }
