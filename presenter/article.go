@@ -32,7 +32,7 @@ func ToGQLAdminArticleFromDBArticle(input *dbmodel.Article) *adminmodel.Article 
 	}
 }
 
-func ToGQLAdminArticleConnectionFromDBArticles(inputs []*dbmodel.Article) *adminmodel.ArticleConnection {
+func ToGQLAdminArticleConnectionFromDBArticles(inputs []*dbmodel.Article, totalCount, limit, offset int) *adminmodel.ArticleConnection {
 	nodes := make([]*adminmodel.Article, len(inputs))
 	edges := make([]*adminmodel.ArticleEdge, len(inputs))
 	for i, v := range inputs {
@@ -45,7 +45,7 @@ func ToGQLAdminArticleConnectionFromDBArticles(inputs []*dbmodel.Article) *admin
 	}
 
 	connection := &adminmodel.ArticleConnection{
-		PageInfo: nil,
+		PageInfo: genAdminPageInfo(len(inputs), totalCount, limit, offset),
 		Edges:    edges,
 		Nodes:    nodes,
 	}
@@ -65,7 +65,7 @@ func ToGQLViewerArticleFromDBArticle(input *dbmodel.Article) *viewermodel.Articl
 	}
 }
 
-func ToGQLViewerArticleConnectionFromDBArticles(input []*dbmodel.Article) *viewermodel.ArticleConnection {
+func ToGQLViewerArticleConnectionFromDBArticles(inputs []*dbmodel.Article, totalCount, limit, offset int) *viewermodel.ArticleConnection {
 	nodes := make([]*viewermodel.Article, len(inputs))
 	edges := make([]*viewermodel.ArticleEdge, len(inputs))
 	for i, v := range inputs {
@@ -78,10 +78,50 @@ func ToGQLViewerArticleConnectionFromDBArticles(input []*dbmodel.Article) *viewe
 	}
 
 	connection := &viewermodel.ArticleConnection{
-		PageInfo: nil,
+		PageInfo: genViewerPageInfo(len(inputs), totalCount, limit, offset),
 		Edges:    edges,
 		Nodes:    nodes,
 	}
 
 	return connection
+}
+
+func genAdminPageInfo(count, totalCount, limit, offset int) *adminmodel.PageInfo {
+	return &adminmodel.PageInfo{
+		Page:             getPage(limit, offset),
+		PaginationLength: getPaginationLength(limit, totalCount),
+		HasNextPage:      offset+limit < totalCount,
+		HasPreviousPage:  offset > 0,
+		Count:            count,
+		TotalCount:       totalCount,
+		Limit:            limit,
+		Offset:           offset,
+	}
+}
+
+func genViewerPageInfo(count, totalCount, limit, offset int) *viewermodel.PageInfo {
+	return &viewermodel.PageInfo{
+		Page:             getPage(limit, offset),
+		PaginationLength: getPaginationLength(limit, totalCount),
+		HasNextPage:      offset+limit < totalCount,
+		HasPreviousPage:  offset > 0,
+		Count:            count,
+		TotalCount:       totalCount,
+		Limit:            limit,
+		Offset:           offset,
+	}
+}
+
+func getPage(limit, offset int) int {
+	if limit == 0 {
+		return 0
+	}
+	return offset/limit + 1
+}
+
+func getPaginationLength(limit, totalCount int) int {
+	if limit == 0 {
+		return 0
+	}
+	return totalCount/limit + 1
 }

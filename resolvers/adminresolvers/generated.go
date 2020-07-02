@@ -74,6 +74,7 @@ type ComplexityRoot struct {
 	}
 
 	PageInfo struct {
+		Count            func(childComplexity int) int
 		HasNextPage      func(childComplexity int) int
 		HasPreviousPage  func(childComplexity int) int
 		Limit            func(childComplexity int) int
@@ -234,6 +235,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateArticle(childComplexity, args["id"].(string), args["input"].(adminmodel.ArticleMutationInput)), true
+
+	case "PageInfo.count":
+		if e.complexity.PageInfo.Count == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.Count(childComplexity), true
 
 	case "PageInfo.hasNextPage":
 		if e.complexity.PageInfo.HasNextPage == nil {
@@ -396,6 +404,7 @@ type PageInfo {
     paginationLength: Int!
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
+    count: Int!
     totalCount: Int!
     limit: Int!
     offset: Int!
@@ -1256,6 +1265,40 @@ func (ec *executionContext) _PageInfo_hasPreviousPage(ctx context.Context, field
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _PageInfo_count(ctx context.Context, field graphql.CollectedField, obj *adminmodel.PageInfo) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "PageInfo",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PageInfo_totalCount(ctx context.Context, field graphql.CollectedField, obj *adminmodel.PageInfo) (ret graphql.Marshaler) {
@@ -2885,6 +2928,11 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "hasPreviousPage":
 			out.Values[i] = ec._PageInfo_hasPreviousPage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "count":
+			out.Values[i] = ec._PageInfo_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

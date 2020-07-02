@@ -51,11 +51,16 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Art
 }
 
 func (r *queryResolver) Articles(ctx context.Context, page *adminmodel.Pagination) (*adminmodel.ArticleConnection, error) {
-	articles, err := service.FindArticles(ctx, page.Limit, page.Offset)
+	limit, offset := service.ValidateAdminPagination(page, 100)
+	articles, err := service.FindArticles(ctx, limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	return presenter.ToGQLAdminArticleConnectionFromDBArticles(articles), nil
+	totalCount, err := service.CountArticles(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return presenter.ToGQLAdminArticleConnectionFromDBArticles(articles, int(totalCount), limit, offset), nil
 }
 
 // Mutation returns MutationResolver implementation.

@@ -62,6 +62,7 @@ type PageInfo struct {
 	PaginationLength int  `json:"paginationLength"`
 	HasNextPage      bool `json:"hasNextPage"`
 	HasPreviousPage  bool `json:"hasPreviousPage"`
+	Count            int  `json:"count"`
 	TotalCount       int  `json:"totalCount"`
 	Limit            int  `json:"limit"`
 	Offset           int  `json:"offset"`
