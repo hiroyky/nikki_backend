@@ -22,6 +22,7 @@ type PageInfo {
     paginationLength: Int!
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
+    count: Int!
     totalCount: Int!
     limit: Int!
     offset: Int!

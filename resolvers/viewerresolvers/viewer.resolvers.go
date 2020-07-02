@@ -5,6 +5,7 @@ package viewerresolvers
 
 import (
 	"context"
+
 	"github.com/hiroyky/nikki_backend/domain/gql/viewermodel"
 	"github.com/hiroyky/nikki_backend/lib"
 	"github.com/hiroyky/nikki_backend/presenter"
@@ -26,12 +27,16 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*viewermodel.Ar
 }
 
 func (r *queryResolver) Articles(ctx context.Context, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error) {
-	articles, err := service.FindArticles(ctx, page.Limit, page.Offset)
+	limit, offset := service.ValidateViewerPagination(page, 100)
+	articles, err := service.FindArticles(ctx, limit, offset)
 	if err != nil {
 		return nil, err
 	}
-
-	return presenter.ToGQLViewerArticleConnectionFromDBArticles(articles), nil
+	totalCount, err := service.CountArticles(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return presenter.ToGQLViewerArticleConnectionFromDBArticles(articles, int(totalCount), limit, offset), nil
 }
 
 // Query returns QueryResolver implementation.
