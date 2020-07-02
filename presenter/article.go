@@ -65,7 +65,7 @@ func ToGQLViewerArticleFromDBArticle(input *dbmodel.Article) *viewermodel.Articl
 	}
 }
 
-func ToGQLViewerArticleConnectionFromDBArticles(input []*dbmodel.Article) *viewermodel.ArticleConnection {
+func ToGQLViewerArticleConnectionFromDBArticles(inputs []*dbmodel.Article) *viewermodel.ArticleConnection {
 	nodes := make([]*viewermodel.Article, len(inputs))
 	edges := make([]*viewermodel.ArticleEdge, len(inputs))
 	for i, v := range inputs {
