@@ -5,8 +5,6 @@ package adminresolvers
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/hiroyky/nikki_backend/domain/gql/adminmodel"
 	"github.com/hiroyky/nikki_backend/lib"
 	"github.com/hiroyky/nikki_backend/presenter"
@@ -52,7 +50,11 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Art
 }
 
 func (r *queryResolver) Articles(ctx context.Context, page *adminmodel.Pagination) (*adminmodel.ArticleConnection, error) {
-	panic(fmt.Errorf("not implemented"))
+	articles, err := service.FindArticles(ctx, page.Limit, page.Offset)
+	if err != nil {
+		return nil, err
+	}
+	return presenter.ToGQLAdminArticleConnectionFromDBArticles(articles), nil
 }
 
 // Mutation returns MutationResolver implementation.

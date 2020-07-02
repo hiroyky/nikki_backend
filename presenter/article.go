@@ -30,3 +30,24 @@ func ToGQLAdminArticleFromDBArticle(input *dbmodel.Article) *adminmodel.Article 
 		UpdatedAt:      input.UpdatedAt,
 	}
 }
+
+func ToGQLAdminArticleConnectionFromDBArticles(inputs []*dbmodel.Article) *adminmodel.ArticleConnection {
+	nodes := make([]*adminmodel.Article, len(inputs))
+	edges := make([]*adminmodel.ArticleEdge, len(inputs))
+	for i, v := range inputs {
+		node := ToGQLAdminArticleFromDBArticle(v)
+		nodes[i] = node
+		edges[i] = &adminmodel.ArticleEdge{
+			Cursor: node.ID,
+			Node:   node,
+		}
+	}
+
+	connection := &adminmodel.ArticleConnection{
+		PageInfo: nil,
+		Edges:    edges,
+		Nodes:    nodes,
+	}
+
+	return connection
+}

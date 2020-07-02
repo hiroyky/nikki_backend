@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hiroyky/nikki_backend/domain/dbmodel"
 	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/queries/qm"
 )
 
 func NewArticle(ctx context.Context, article dbmodel.Article) (*dbmodel.Article, error) {
@@ -28,4 +29,11 @@ func UpdateArticle(ctx context.Context, id int, article dbmodel.Article) (*dbmod
 
 func GetArticle(ctx context.Context, id int) (*dbmodel.Article, error) {
 	return dbmodel.FindArticleG(ctx, id)
+}
+
+func FindArticles(ctx context.Context, limit, offset *int) ([]*dbmodel.Article, error) {
+	return dbmodel.Articles(
+		qm.Limit(ValidateLimit(limit, 100)),
+		qm.Offset(ValidateOffset(offset)),
+	).AllG(ctx)
 }
