@@ -48,6 +48,15 @@ type ArticleEdge struct {
 
 func (ArticleEdge) IsEdge() {}
 
+type ArticleMutationInput struct {
+	Title          string    `json:"title"`
+	Body           string    `json:"body"`
+	Description    string    `json:"description"`
+	PublishStatus  int       `json:"publishStatus"`
+	ThumbnailImage string    `json:"thumbnailImage"`
+	PostedAt       time.Time `json:"postedAt"`
+}
+
 type PageInfo struct {
 	Page             int  `json:"page"`
 	PaginationLength int  `json:"paginationLength"`
@@ -56,4 +65,9 @@ type PageInfo struct {
 	TotalCount       int  `json:"totalCount"`
 	Limit            int  `json:"limit"`
 	Offset           int  `json:"offset"`
+}
+
+type Pagination struct {
+	Limit  *int `json:"Limit"`
+	Offset *int `json:"Offset"`
 }

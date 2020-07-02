@@ -1,6 +1,11 @@
 type Query {
     article(id: ID!): Article
-    articles: ArticleConnection!
+    articles(page: Pagination): ArticleConnection!
+}
+
+type Mutation {
+    newArticle(input: ArticleMutationInput!): Article!
+    updateArticle(id: ID!, input: ArticleMutationInput!): Article!
 }
 
 type Article implements Node {
@@ -13,6 +18,15 @@ type Article implements Node {
     postedAt: Time!
     createdAt: Time!
     updatedAt: Time!
+}
+
+input ArticleMutationInput {
+    title: String!
+    body: String!
+    description: String!
+    publishStatus: Int!
+    thumbnailImage: String!
+    postedAt: Time!
 }
 
 type ArticleEdge implements Edge {
