@@ -77,13 +77,13 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Article  func(childComplexity int, id string) int
-		Articles func(childComplexity int) int
+		Articles func(childComplexity int, page *viewermodel.Pagination) int
 	}
 }
 
 type QueryResolver interface {
 	Article(ctx context.Context, id string) (*viewermodel.Article, error)
-	Articles(ctx context.Context) (*viewermodel.ArticleConnection, error)
+	Articles(ctx context.Context, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error)
 }
 
 type executableSchema struct {
@@ -251,7 +251,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Articles(childComplexity), true
+		args, err := ec.field_Query_articles_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Articles(childComplexity, args["page"].(*viewermodel.Pagination)), true
 
 	}
 	return 0, false
@@ -340,7 +345,7 @@ input Pagination {
 }`, BuiltIn: false},
 	&ast.Source{Name: "schema/graph-schema/viewer.graphql", Input: `type Query {
     article(id: ID!): Article
-    articles: ArticleConnection!
+    articles(page: Pagination): ArticleConnection!
 }
 
 type Article implements Node {
@@ -395,6 +400,20 @@ func (ec *executionContext) field_Query_article_args(ctx context.Context, rawArg
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_articles_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *viewermodel.Pagination
+	if tmp, ok := rawArgs["page"]; ok {
+		arg0, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
 	return args, nil
 }
 
@@ -1127,9 +1146,16 @@ func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.C
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_articles_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Articles(rctx)
+		return ec.resolvers.Query().Articles(rctx, args["page"].(*viewermodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3311,6 +3337,18 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return ec.marshalOInt2int(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOPagination2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx context.Context, v interface{}) (viewermodel.Pagination, error) {
+	return ec.unmarshalInputPagination(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx context.Context, v interface{}) (*viewermodel.Pagination, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOPagination2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
