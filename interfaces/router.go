@@ -4,6 +4,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"github.com/hiroyky/nikki_backend/interfaces/middleware"
 	"github.com/hiroyky/nikki_backend/resolvers/adminresolvers"
 	"github.com/hiroyky/nikki_backend/resolvers/viewerresolvers"
 )
@@ -17,7 +18,7 @@ func init() {
 	adminServer = handler.NewDefaultServer(adminresolvers.NewExecutableSchema(adminresolvers.Config{Resolvers: &adminresolvers.Resolver{}}))
 	viewerServer = handler.NewDefaultServer(viewerresolvers.NewExecutableSchema(viewerresolvers.Config{Resolvers: &viewerresolvers.Resolver{}}))
 
-	admin := r.Group("/admin")
+	admin := r.Group("/admin", middleware.AdminBasicAuth())
 	{
 		admin.GET("/", func(ctx *gin.Context) {
 			playground.Handler("Admin graphql", "/admin/query").ServeHTTP(ctx.Writer, ctx.Request)

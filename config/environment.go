@@ -13,6 +13,9 @@ type environment struct {
 	DatabasePassword string `envconfig:"DATABASE_PASSWORD"`
 	DebugMode        bool   `envconfig:"DEBUG_MODE" default:"false"`
 	Port             string `envconfig:"PORT" default:"8080"`
+
+	AdminUserName string `envconfig:"ADMIN_USERNAME"`
+	AdminPassword string `envconfig:"ADMIN_PASSWORD"`
 }
 
 var Env environment
