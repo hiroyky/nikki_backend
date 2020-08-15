@@ -413,8 +413,8 @@ type PageInfo {
 scalar Time
 
 input Pagination {
-    Limit: Int
-    Offset: Int
+    limit: Int
+    offset: Int
 }`, BuiltIn: false},
 	&ast.Source{Name: "schema/graph-schema/admin.graphql", Input: `type Query {
     article(id: ID!): Article
@@ -2660,13 +2660,13 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj in
 
 	for k, v := range asMap {
 		switch k {
-		case "Limit":
+		case "limit":
 			var err error
 			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Offset":
+		case "offset":
 			var err error
 			it.Offset, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {

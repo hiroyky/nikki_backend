@@ -31,6 +31,6 @@ type PageInfo {
 scalar Time
 
 input Pagination {
-    Limit: Int
-    Offset: Int
+    limit: Int
+    offset: Int
 }

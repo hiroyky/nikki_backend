@@ -58,6 +58,6 @@ type PageInfo struct {
 }
 
 type Pagination struct {
-	Limit  *int `json:"Limit"`
-	Offset *int `json:"Offset"`
+	Limit  *int `json:"limit"`
+	Offset *int `json:"offset"`
 }
