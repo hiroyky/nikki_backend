@@ -15,6 +15,7 @@ var viewerServer *handler.Server
 
 func init() {
 	r := gin.Default()
+	r.Use(middleware.Cors())
 	adminServer = handler.NewDefaultServer(adminresolvers.NewExecutableSchema(adminresolvers.Config{Resolvers: &adminresolvers.Resolver{}}))
 	viewerServer = handler.NewDefaultServer(viewerresolvers.NewExecutableSchema(viewerresolvers.Config{Resolvers: &viewerresolvers.Resolver{}}))
 
