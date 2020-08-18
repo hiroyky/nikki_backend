@@ -20,13 +20,15 @@ type Node interface {
 }
 
 type Article struct {
-	ID             string    `json:"id"`
-	Title          string    `json:"title"`
-	Body           string    `json:"body"`
-	Description    string    `json:"description"`
-	ThumbnailImage string    `json:"thumbnailImage"`
-	PostedAt       time.Time `json:"postedAt"`
-	UpdatedAt      time.Time `json:"updatedAt"`
+	ID              string    `json:"id"`
+	Title           string    `json:"title"`
+	Body            string    `json:"body"`
+	Description     string    `json:"description"`
+	ThumbnailImage  string    `json:"thumbnailImage"`
+	PostedAt        time.Time `json:"postedAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
+	PreviousArticle *Article  `json:"previousArticle"`
+	NextArticle     *Article  `json:"nextArticle"`
 }
 
 func (Article) IsNode() {}

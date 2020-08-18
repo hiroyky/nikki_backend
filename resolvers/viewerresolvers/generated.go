@@ -45,13 +45,15 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Article struct {
-		Body           func(childComplexity int) int
-		Description    func(childComplexity int) int
-		ID             func(childComplexity int) int
-		PostedAt       func(childComplexity int) int
-		ThumbnailImage func(childComplexity int) int
-		Title          func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
+		Body            func(childComplexity int) int
+		Description     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		NextArticle     func(childComplexity int) int
+		PostedAt        func(childComplexity int) int
+		PreviousArticle func(childComplexity int) int
+		ThumbnailImage  func(childComplexity int) int
+		Title           func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
 	}
 
 	ArticleConnection struct {
@@ -123,12 +125,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Article.ID(childComplexity), true
 
+	case "Article.nextArticle":
+		if e.complexity.Article.NextArticle == nil {
+			break
+		}
+
+		return e.complexity.Article.NextArticle(childComplexity), true
+
 	case "Article.postedAt":
 		if e.complexity.Article.PostedAt == nil {
 			break
 		}
 
 		return e.complexity.Article.PostedAt(childComplexity), true
+
+	case "Article.previousArticle":
+		if e.complexity.Article.PreviousArticle == nil {
+			break
+		}
+
+		return e.complexity.Article.PreviousArticle(childComplexity), true
 
 	case "Article.thumbnailImage":
 		if e.complexity.Article.ThumbnailImage == nil {
@@ -365,6 +381,9 @@ type Article implements Node {
     thumbnailImage: String!
     postedAt: Time!
     updatedAt: Time!
+
+    previousArticle: Article
+    nextArticle: Article
 }
 
 type ArticleEdge implements Edge {
@@ -698,6 +717,68 @@ func (ec *executionContext) _Article_updatedAt(ctx context.Context, field graphq
 	res := resTmp.(time.Time)
 	fc.Result = res
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Article_previousArticle(ctx context.Context, field graphql.CollectedField, obj *viewermodel.Article) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Article",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PreviousArticle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*viewermodel.Article)
+	fc.Result = res
+	return ec.marshalOArticle2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐArticle(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Article_nextArticle(ctx context.Context, field graphql.CollectedField, obj *viewermodel.Article) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Article",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NextArticle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*viewermodel.Article)
+	fc.Result = res
+	return ec.marshalOArticle2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐArticle(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ArticleConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *viewermodel.ArticleConnection) (ret graphql.Marshaler) {
@@ -2465,6 +2546,10 @@ func (ec *executionContext) _Article(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "previousArticle":
+			out.Values[i] = ec._Article_previousArticle(ctx, field, obj)
+		case "nextArticle":
+			out.Values[i] = ec._Article_nextArticle(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
