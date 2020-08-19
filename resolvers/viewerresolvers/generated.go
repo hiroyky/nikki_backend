@@ -37,6 +37,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Article() ArticleResolver
 	Query() QueryResolver
 }
 
@@ -84,6 +85,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type ArticleResolver interface {
+	PreviousArticle(ctx context.Context, obj *viewermodel.Article) (*viewermodel.Article, error)
+	NextArticle(ctx context.Context, obj *viewermodel.Article) (*viewermodel.Article, error)
+}
 type QueryResolver interface {
 	Article(ctx context.Context, id string) (*viewermodel.Article, error)
 	Articles(ctx context.Context, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error)
@@ -730,13 +735,13 @@ func (ec *executionContext) _Article_previousArticle(ctx context.Context, field 
 		Object:   "Article",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PreviousArticle, nil
+		return ec.resolvers.Article().PreviousArticle(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -761,13 +766,13 @@ func (ec *executionContext) _Article_nextArticle(ctx context.Context, field grap
 		Object:   "Article",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.NextArticle, nil
+		return ec.resolvers.Article().NextArticle(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2514,42 +2519,60 @@ func (ec *executionContext) _Article(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 			out.Values[i] = ec._Article_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 			out.Values[i] = ec._Article_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "body":
 			out.Values[i] = ec._Article_body(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Article_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "thumbnailImage":
 			out.Values[i] = ec._Article_thumbnailImage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "postedAt":
 			out.Values[i] = ec._Article_postedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Article_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "previousArticle":
-			out.Values[i] = ec._Article_previousArticle(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Article_previousArticle(ctx, field, obj)
+				return res
+			})
 		case "nextArticle":
-			out.Values[i] = ec._Article_nextArticle(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Article_nextArticle(ctx, field, obj)
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
