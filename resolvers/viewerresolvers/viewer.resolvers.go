@@ -5,8 +5,6 @@ package viewerresolvers
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/hiroyky/nikki_backend/domain/gql/viewermodel"
 	"github.com/hiroyky/nikki_backend/lib"
 	"github.com/hiroyky/nikki_backend/presenter"
@@ -14,11 +12,31 @@ import (
 )
 
 func (r *articleResolver) PreviousArticle(ctx context.Context, obj *viewermodel.Article) (*viewermodel.Article, error) {
-	panic(fmt.Errorf("not implemented"))
+	dbID, err := lib.DecodeGraphQLID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	previous, err := service.GetPreviousArticle(ctx, dbID, obj.PostedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return presenter.ToGQLViewerArticleFromDBArticle(previous), nil
 }
 
 func (r *articleResolver) NextArticle(ctx context.Context, obj *viewermodel.Article) (*viewermodel.Article, error) {
-	panic(fmt.Errorf("not implemented"))
+	dbID, err := lib.DecodeGraphQLID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	next, err := service.GetNextArticle(ctx, dbID, obj.PostedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return presenter.ToGQLViewerArticleFromDBArticle(next), nil
 }
 
 func (r *queryResolver) Article(ctx context.Context, id string) (*viewermodel.Article, error) {
@@ -27,12 +45,12 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*viewermodel.Ar
 		return nil, err
 	}
 
-	dst, err := service.GetArticle(ctx, dbID)
+	article, err := service.GetArticle(ctx, dbID)
 	if err != nil {
 		return nil, err
 	}
 
-	return presenter.ToGQLViewerArticleFromDBArticle(dst), nil
+	return presenter.ToGQLViewerArticleFromDBArticle(article), nil
 }
 
 func (r *queryResolver) Articles(ctx context.Context, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error) {

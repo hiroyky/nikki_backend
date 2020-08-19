@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/hiroyky/nikki_backend/domain/dbmodel"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
+	"time"
 )
 
 func NewArticle(ctx context.Context, article dbmodel.Article) (*dbmodel.Article, error) {
@@ -40,4 +42,39 @@ func FindArticles(ctx context.Context, limit, offset int) ([]*dbmodel.Article, e
 
 func CountArticles(ctx context.Context) (int64, error) {
 	return dbmodel.Articles().CountG(ctx)
+}
+
+func GetPreviousArticle(ctx context.Context, baseArticleID int, basePostedAt time.Time) (*dbmodel.Article, error) {
+	res, err := dbmodel.Articles(
+		qm.Where(fmt.Sprintf("%s < ?", dbmodel.ArticleColumns.PostedAt), basePostedAt),
+		qm.Where(fmt.Sprintf("%s != ?", dbmodel.ArticleColumns.ArticleID), baseArticleID),
+		qm.OrderBy(fmt.Sprintf("%s DESC", dbmodel.ArticleColumns.PostedAt)),
+		qm.OrderBy(fmt.Sprintf("%s DESC", dbmodel.ArticleColumns.ArticleID)),
+		qm.Limit(1),
+	).AllG(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, nil
+	}
+	return res[0], nil
+}
+
+func GetNextArticle(ctx context.Context, baseArticleID int, basePostedAt time.Time) (*dbmodel.Article, error) {
+	res, err := dbmodel.Articles(
+		qm.Where(fmt.Sprintf("%s > ?", dbmodel.ArticleColumns.PostedAt), basePostedAt),
+		qm.Where(fmt.Sprintf("%s != ?", dbmodel.ArticleColumns.ArticleID), baseArticleID),
+		qm.OrderBy(fmt.Sprintf("%s ASC", dbmodel.ArticleColumns.PostedAt)),
+		qm.OrderBy(fmt.Sprintf("%s ASC", dbmodel.ArticleColumns.ArticleID)),
+		qm.Limit(1),
+	).AllG(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, nil
+	}
+	return res[0], nil
 }
