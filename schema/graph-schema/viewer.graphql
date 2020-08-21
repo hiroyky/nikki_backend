@@ -11,6 +11,9 @@ type Article implements Node {
     thumbnailImage: String!
     postedAt: Time!
     updatedAt: Time!
+
+    previousArticle: Article
+    nextArticle: Article
 }
 
 type ArticleEdge implements Edge {

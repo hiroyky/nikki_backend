@@ -37,6 +37,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Article() ArticleResolver
 	Query() QueryResolver
 }
 
@@ -45,13 +46,15 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Article struct {
-		Body           func(childComplexity int) int
-		Description    func(childComplexity int) int
-		ID             func(childComplexity int) int
-		PostedAt       func(childComplexity int) int
-		ThumbnailImage func(childComplexity int) int
-		Title          func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
+		Body            func(childComplexity int) int
+		Description     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		NextArticle     func(childComplexity int) int
+		PostedAt        func(childComplexity int) int
+		PreviousArticle func(childComplexity int) int
+		ThumbnailImage  func(childComplexity int) int
+		Title           func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
 	}
 
 	ArticleConnection struct {
@@ -82,6 +85,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type ArticleResolver interface {
+	PreviousArticle(ctx context.Context, obj *viewermodel.Article) (*viewermodel.Article, error)
+	NextArticle(ctx context.Context, obj *viewermodel.Article) (*viewermodel.Article, error)
+}
 type QueryResolver interface {
 	Article(ctx context.Context, id string) (*viewermodel.Article, error)
 	Articles(ctx context.Context, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error)
@@ -123,12 +130,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Article.ID(childComplexity), true
 
+	case "Article.nextArticle":
+		if e.complexity.Article.NextArticle == nil {
+			break
+		}
+
+		return e.complexity.Article.NextArticle(childComplexity), true
+
 	case "Article.postedAt":
 		if e.complexity.Article.PostedAt == nil {
 			break
 		}
 
 		return e.complexity.Article.PostedAt(childComplexity), true
+
+	case "Article.previousArticle":
+		if e.complexity.Article.PreviousArticle == nil {
+			break
+		}
+
+		return e.complexity.Article.PreviousArticle(childComplexity), true
 
 	case "Article.thumbnailImage":
 		if e.complexity.Article.ThumbnailImage == nil {
@@ -365,6 +386,9 @@ type Article implements Node {
     thumbnailImage: String!
     postedAt: Time!
     updatedAt: Time!
+
+    previousArticle: Article
+    nextArticle: Article
 }
 
 type ArticleEdge implements Edge {
@@ -698,6 +722,68 @@ func (ec *executionContext) _Article_updatedAt(ctx context.Context, field graphq
 	res := resTmp.(time.Time)
 	fc.Result = res
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Article_previousArticle(ctx context.Context, field graphql.CollectedField, obj *viewermodel.Article) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Article",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Article().PreviousArticle(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*viewermodel.Article)
+	fc.Result = res
+	return ec.marshalOArticle2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐArticle(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Article_nextArticle(ctx context.Context, field graphql.CollectedField, obj *viewermodel.Article) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Article",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Article().NextArticle(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*viewermodel.Article)
+	fc.Result = res
+	return ec.marshalOArticle2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐArticle(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ArticleConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *viewermodel.ArticleConnection) (ret graphql.Marshaler) {
@@ -2433,38 +2519,60 @@ func (ec *executionContext) _Article(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 			out.Values[i] = ec._Article_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 			out.Values[i] = ec._Article_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "body":
 			out.Values[i] = ec._Article_body(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Article_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "thumbnailImage":
 			out.Values[i] = ec._Article_thumbnailImage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "postedAt":
 			out.Values[i] = ec._Article_postedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Article_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "previousArticle":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Article_previousArticle(ctx, field, obj)
+				return res
+			})
+		case "nextArticle":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Article_nextArticle(ctx, field, obj)
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

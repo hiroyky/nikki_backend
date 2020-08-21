@@ -54,6 +54,10 @@ func ToGQLAdminArticleConnectionFromDBArticles(inputs []*dbmodel.Article, totalC
 }
 
 func ToGQLViewerArticleFromDBArticle(input *dbmodel.Article) *viewermodel.Article {
+	if input == nil {
+		return nil
+	}
+
 	return &viewermodel.Article{
 		ID:             lib.EncodeGraphQLID(dbmodel.TableNames.Articles, input.ArticleID),
 		Title:          input.Title,
