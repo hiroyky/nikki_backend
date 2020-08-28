@@ -48,7 +48,7 @@ func CountArticles(ctx context.Context) (int64, error) {
 func parseSort(sort []*gql.SortOrder) []qm.QueryMod {
 	dst := []qm.QueryMod{}
 	for _, v := range sort {
-		if v == nil {
+		if v == nil || v.Sort == nil {
 			continue
 		}
 		order := "ASC"
@@ -56,7 +56,7 @@ func parseSort(sort []*gql.SortOrder) []qm.QueryMod {
 			order = "DESC"
 		}
 
-		if v.Sort == "postedAt" {
+		if *(v.Sort) == "postedAt" {
 			dst = append(
 				dst, qm.OrderBy(strings.Join([]string{dbmodel.ArticleColumns.PostedAt, order}, " ")),
 			)

@@ -376,7 +376,7 @@ input Pagination {
 }
 
 input SortOrder {
-    sort: String!
+    sort: String
     order: Order
 }
 
@@ -2476,7 +2476,7 @@ func (ec *executionContext) unmarshalInputSortOrder(ctx context.Context, obj int
 		switch k {
 		case "sort":
 			var err error
-			it.Sort, err = ec.unmarshalNString2string(ctx, v)
+			it.Sort, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
