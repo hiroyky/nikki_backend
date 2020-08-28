@@ -1,4 +1,5 @@
 package gql
+
 type SortOrder struct {
 	Sort  string `json:"sort"`
 	Order *Order `json:"order"`

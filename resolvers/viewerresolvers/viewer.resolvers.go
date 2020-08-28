@@ -57,7 +57,7 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*viewermodel.Ar
 
 func (r *queryResolver) Articles(ctx context.Context, sort []*gql.SortOrder, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error) {
 	limit, offset := service.ValidateViewerPagination(page, 100)
-	articles, err := service.FindArticles(ctx, limit, offset)
+	articles, err := service.FindArticles(ctx, sort, limit, offset)
 	if err != nil {
 		return nil, err
 	}
