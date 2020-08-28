@@ -14,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/hiroyky/nikki_backend/domain/gql"
 	"github.com/hiroyky/nikki_backend/domain/gql/adminmodel"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -418,7 +419,7 @@ input Pagination {
 }
 
 input SortOrder {
-    sort: String!
+    sort: String
     order: Order
 }
 
@@ -2688,21 +2689,21 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj in
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSortOrder(ctx context.Context, obj interface{}) (adminmodel.SortOrder, error) {
-	var it adminmodel.SortOrder
+func (ec *executionContext) unmarshalInputSortOrder(ctx context.Context, obj interface{}) (gql.SortOrder, error) {
+	var it gql.SortOrder
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
 		switch k {
 		case "sort":
 			var err error
-			it.Sort, err = ec.unmarshalNString2string(ctx, v)
+			it.Sort, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "order":
 			var err error
-			it.Order, err = ec.unmarshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐOrder(ctx, v)
+			it.Order, err = ec.unmarshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐOrder(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3786,28 +3787,28 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
-func (ec *executionContext) unmarshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐOrder(ctx context.Context, v interface{}) (adminmodel.Order, error) {
-	var res adminmodel.Order
-	return res, res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐOrder(ctx context.Context, v interface{}) (gql.Order, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	return gql.Order(tmp), err
 }
 
-func (ec *executionContext) marshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐOrder(ctx context.Context, sel ast.SelectionSet, v adminmodel.Order) graphql.Marshaler {
-	return v
+func (ec *executionContext) marshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐOrder(ctx context.Context, sel ast.SelectionSet, v gql.Order) graphql.Marshaler {
+	return graphql.MarshalString(string(v))
 }
 
-func (ec *executionContext) unmarshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐOrder(ctx context.Context, v interface{}) (*adminmodel.Order, error) {
+func (ec *executionContext) unmarshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐOrder(ctx context.Context, v interface{}) (*gql.Order, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐOrder(ctx, v)
+	res, err := ec.unmarshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐOrder(ctx, v)
 	return &res, err
 }
 
-func (ec *executionContext) marshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐOrder(ctx context.Context, sel ast.SelectionSet, v *adminmodel.Order) graphql.Marshaler {
+func (ec *executionContext) marshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐOrder(ctx context.Context, sel ast.SelectionSet, v *gql.Order) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return v
+	return ec.marshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐOrder(ctx, sel, *v)
 }
 
 func (ec *executionContext) unmarshalOPagination2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋadminmodelᚐPagination(ctx context.Context, v interface{}) (adminmodel.Pagination, error) {
