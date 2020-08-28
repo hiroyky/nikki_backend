@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/hiroyky/nikki_backend/domain/dbmodel"
+	"github.com/hiroyky/nikki_backend/domain/gql"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
+	"strings"
 	"time"
 )
 
@@ -33,15 +35,34 @@ func GetArticle(ctx context.Context, id int) (*dbmodel.Article, error) {
 	return dbmodel.FindArticleG(ctx, id)
 }
 
-func FindArticles(ctx context.Context, limit, offset int) ([]*dbmodel.Article, error) {
-	return dbmodel.Articles(
-		qm.Limit(limit),
-		qm.Offset(offset),
-	).AllG(ctx)
+func FindArticles(ctx context.Context, sort []*gql.SortOrder, limit, offset int) ([]*dbmodel.Article, error) {
+	queries := []qm.QueryMod{qm.Limit(limit), qm.Offset(offset)}
+	queries = append(queries, parseSort(sort)...)
+	return dbmodel.Articles(queries...).AllG(ctx)
 }
 
 func CountArticles(ctx context.Context) (int64, error) {
 	return dbmodel.Articles().CountG(ctx)
+}
+
+func parseSort(sort []*gql.SortOrder) []qm.QueryMod {
+	dst := []qm.QueryMod{}
+	for _, v := range sort {
+		if v == nil {
+			continue
+		}
+		order := "ASC"
+		if v.Order != nil && *(v.Order) == gql.OrderDesc {
+			order = "DESC"
+		}
+
+		if v.Sort == "postedAt" {
+			dst = append(
+				dst, qm.OrderBy(strings.Join([]string{dbmodel.ArticleColumns.PostedAt, order}, " ")),
+			)
+		}
+	}
+	return dst
 }
 
 func GetPreviousArticle(ctx context.Context, baseArticleID int, basePostedAt time.Time) (*dbmodel.Article, error) {

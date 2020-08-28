@@ -52,7 +52,7 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Art
 
 func (r *queryResolver) Articles(ctx context.Context, page *adminmodel.Pagination) (*adminmodel.ArticleConnection, error) {
 	limit, offset := service.ValidateAdminPagination(page, 100)
-	articles, err := service.FindArticles(ctx, limit, offset)
+	articles, err := service.FindArticles(ctx, nil, limit, offset)
 	if err != nil {
 		return nil, err
 	}

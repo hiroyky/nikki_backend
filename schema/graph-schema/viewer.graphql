@@ -1,6 +1,6 @@
 type Query {
     article(id: ID!): Article
-    articles(sort: SortOrder, page: Pagination): ArticleConnection!
+    articles(sort: [SortOrder], page: Pagination): ArticleConnection!
 }
 
 type Article implements Node {
