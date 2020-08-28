@@ -56,3 +56,7 @@ models:
             - github.com/99designs/gqlgen/graphql.Int32
     Article:
         model: github.com/hiroyky/nikki_backend/domain/gql/viewermodel.Article
+    SortOrder:
+        model: github.com/hiroyky/nikki_backend/domain/gql.SortOrder
+    Order:
+        model: github.com/hiroyky/nikki_backend/domain/gql.Order
