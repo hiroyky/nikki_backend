@@ -82,7 +82,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Article  func(childComplexity int, id string) int
-		Articles func(childComplexity int, sort *gql.SortOrder, page *viewermodel.Pagination) int
+		Articles func(childComplexity int, sort []*gql.SortOrder, page *viewermodel.Pagination) int
 	}
 }
 
@@ -92,7 +92,7 @@ type ArticleResolver interface {
 }
 type QueryResolver interface {
 	Article(ctx context.Context, id string) (*viewermodel.Article, error)
-	Articles(ctx context.Context, sort *gql.SortOrder, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error)
+	Articles(ctx context.Context, sort []*gql.SortOrder, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error)
 }
 
 type executableSchema struct {
@@ -286,7 +286,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Articles(childComplexity, args["sort"].(*gql.SortOrder), args["page"].(*viewermodel.Pagination)), true
+		return e.complexity.Query.Articles(childComplexity, args["sort"].([]*gql.SortOrder), args["page"].(*viewermodel.Pagination)), true
 
 	}
 	return 0, false
@@ -386,7 +386,7 @@ enum Order {
 }`, BuiltIn: false},
 	&ast.Source{Name: "schema/graph-schema/viewer.graphql", Input: `type Query {
     article(id: ID!): Article
-    articles(sort: SortOrder, page: Pagination): ArticleConnection!
+    articles(sort: [SortOrder], page: Pagination): ArticleConnection!
 }
 
 type Article implements Node {
@@ -450,9 +450,9 @@ func (ec *executionContext) field_Query_article_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Query_articles_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *gql.SortOrder
+	var arg0 []*gql.SortOrder
 	if tmp, ok := rawArgs["sort"]; ok {
-		arg0, err = ec.unmarshalOSortOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐSortOrder(ctx, tmp)
+		arg0, err = ec.unmarshalOSortOrder2ᚕᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐSortOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1303,7 +1303,7 @@ func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Articles(rctx, args["sort"].(*gql.SortOrder), args["page"].(*viewermodel.Pagination))
+		return ec.resolvers.Query().Articles(rctx, args["sort"].([]*gql.SortOrder), args["page"].(*viewermodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3576,6 +3576,26 @@ func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnik
 
 func (ec *executionContext) unmarshalOSortOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐSortOrder(ctx context.Context, v interface{}) (gql.SortOrder, error) {
 	return ec.unmarshalInputSortOrder(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOSortOrder2ᚕᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐSortOrder(ctx context.Context, v interface{}) ([]*gql.SortOrder, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*gql.SortOrder, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalOSortOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐSortOrder(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) unmarshalOSortOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚐSortOrder(ctx context.Context, v interface{}) (*gql.SortOrder, error) {
