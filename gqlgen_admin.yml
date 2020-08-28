@@ -54,3 +54,7 @@ models:
             - github.com/99designs/gqlgen/graphql.Int
             - github.com/99designs/gqlgen/graphql.Int64
             - github.com/99designs/gqlgen/graphql.Int32
+    SortOrder:
+        model: github.com/hiroyky/nikki_backend/domain/gql.SortOrder
+    Order:
+        model: github.com/hiroyky/nikki_backend/domain/gql.Order
