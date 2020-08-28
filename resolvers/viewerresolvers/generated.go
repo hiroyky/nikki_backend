@@ -81,7 +81,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Article  func(childComplexity int, id string) int
-		Articles func(childComplexity int, page *viewermodel.Pagination) int
+		Articles func(childComplexity int, sort *viewermodel.SortOrder, page *viewermodel.Pagination) int
 	}
 }
 
@@ -91,7 +91,7 @@ type ArticleResolver interface {
 }
 type QueryResolver interface {
 	Article(ctx context.Context, id string) (*viewermodel.Article, error)
-	Articles(ctx context.Context, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error)
+	Articles(ctx context.Context, sort *viewermodel.SortOrder, page *viewermodel.Pagination) (*viewermodel.ArticleConnection, error)
 }
 
 type executableSchema struct {
@@ -285,7 +285,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Articles(childComplexity, args["page"].(*viewermodel.Pagination)), true
+		return e.complexity.Query.Articles(childComplexity, args["sort"].(*viewermodel.SortOrder), args["page"].(*viewermodel.Pagination)), true
 
 	}
 	return 0, false
@@ -372,10 +372,20 @@ scalar Time
 input Pagination {
     limit: Int
     offset: Int
+}
+
+input SortOrder {
+    sort: String!
+    order: Order
+}
+
+enum Order {
+    ASC
+    DESC
 }`, BuiltIn: false},
 	&ast.Source{Name: "schema/graph-schema/viewer.graphql", Input: `type Query {
     article(id: ID!): Article
-    articles(page: Pagination): ArticleConnection!
+    articles(sort: SortOrder, page: Pagination): ArticleConnection!
 }
 
 type Article implements Node {
@@ -439,14 +449,22 @@ func (ec *executionContext) field_Query_article_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Query_articles_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *viewermodel.Pagination
-	if tmp, ok := rawArgs["page"]; ok {
-		arg0, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx, tmp)
+	var arg0 *viewermodel.SortOrder
+	if tmp, ok := rawArgs["sort"]; ok {
+		arg0, err = ec.unmarshalOSortOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐSortOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["page"] = arg0
+	args["sort"] = arg0
+	var arg1 *viewermodel.Pagination
+	if tmp, ok := rawArgs["page"]; ok {
+		arg1, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
 	return args, nil
 }
 
@@ -1284,7 +1302,7 @@ func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Articles(rctx, args["page"].(*viewermodel.Pagination))
+		return ec.resolvers.Query().Articles(rctx, args["sort"].(*viewermodel.SortOrder), args["page"].(*viewermodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2449,6 +2467,30 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSortOrder(ctx context.Context, obj interface{}) (viewermodel.SortOrder, error) {
+	var it viewermodel.SortOrder
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "sort":
+			var err error
+			it.Sort, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "order":
+			var err error
+			it.Order, err = ec.unmarshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐOrder(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3495,6 +3537,30 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
+func (ec *executionContext) unmarshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐOrder(ctx context.Context, v interface{}) (viewermodel.Order, error) {
+	var res viewermodel.Order
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐOrder(ctx context.Context, sel ast.SelectionSet, v viewermodel.Order) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐOrder(ctx context.Context, v interface{}) (*viewermodel.Order, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐOrder(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐOrder(ctx context.Context, sel ast.SelectionSet, v *viewermodel.Order) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalOPagination2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx context.Context, v interface{}) (viewermodel.Pagination, error) {
 	return ec.unmarshalInputPagination(ctx, v)
 }
@@ -3504,6 +3570,18 @@ func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋhiroykyᚋnik
 		return nil, nil
 	}
 	res, err := ec.unmarshalOPagination2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐPagination(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) unmarshalOSortOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐSortOrder(ctx context.Context, v interface{}) (viewermodel.SortOrder, error) {
+	return ec.unmarshalInputSortOrder(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOSortOrder2ᚖgithubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐSortOrder(ctx context.Context, v interface{}) (*viewermodel.SortOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOSortOrder2githubᚗcomᚋhiroykyᚋnikki_backendᚋdomainᚋgqlᚋviewermodelᚐSortOrder(ctx, v)
 	return &res, err
 }
 
