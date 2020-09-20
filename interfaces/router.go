@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/hiroyky/nikki_backend/interfaces/middleware"
@@ -18,6 +19,7 @@ func init() {
 	r.Use(middleware.Cors())
 	adminServer = handler.NewDefaultServer(adminresolvers.NewExecutableSchema(adminresolvers.Config{Resolvers: &adminresolvers.Resolver{}}))
 	viewerServer = handler.NewDefaultServer(viewerresolvers.NewExecutableSchema(viewerresolvers.Config{Resolvers: &viewerresolvers.Resolver{}}))
+	viewerServer.Use(extension.FixedComplexityLimit(5))
 
 	admin := r.Group("/admin", middleware.AdminBasicAuth())
 	{
