@@ -32,7 +32,7 @@ func UpdateArticle(ctx context.Context, id int, article dbmodel.Article) (*dbmod
 }
 
 func GetArticle(ctx context.Context, id int) (*dbmodel.Article, error) {
-	return dbmodel.FindArticleG(ctx, id)
+	return ArticleByIDLoader(ctx).Load(id)
 }
 
 func FindArticles(ctx context.Context, sort []*gql.SortOrder, limit, offset int) ([]*dbmodel.Article, error) {
