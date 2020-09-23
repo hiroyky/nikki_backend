@@ -5,8 +5,8 @@ package viewerresolvers
 
 import (
 	"context"
-	"github.com/hiroyky/nikki_backend/config"
 
+	"github.com/hiroyky/nikki_backend/config"
 	"github.com/hiroyky/nikki_backend/domain/gql"
 	"github.com/hiroyky/nikki_backend/domain/gql/viewermodel"
 	"github.com/hiroyky/nikki_backend/lib"
