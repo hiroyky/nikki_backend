@@ -5,7 +5,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"github.com/hiroyky/nikki_backend/config"
 	"github.com/hiroyky/nikki_backend/interfaces/middleware"
+	"github.com/hiroyky/nikki_backend/registry"
 	"github.com/hiroyky/nikki_backend/resolvers/adminresolvers"
 	"github.com/hiroyky/nikki_backend/resolvers/viewerresolvers"
 )
@@ -18,8 +20,8 @@ func init() {
 	r := gin.Default()
 	r.Use(middleware.Cors())
 	adminServer = handler.NewDefaultServer(adminresolvers.NewExecutableSchema(adminresolvers.Config{Resolvers: &adminresolvers.Resolver{}}))
-	viewerServer = handler.NewDefaultServer(viewerresolvers.NewExecutableSchema(viewerresolvers.Config{Resolvers: &viewerresolvers.Resolver{}}))
-	viewerServer.Use(extension.FixedComplexityLimit(5))
+	viewerServer = handler.NewDefaultServer(viewerresolvers.NewExecutableSchema(registry.ViewerResolverConfig))
+	viewerServer.Use(extension.FixedComplexityLimit(config.GraphQLComplexityOfViewer))
 
 	admin := r.Group("/admin", middleware.AdminBasicAuth())
 	{
