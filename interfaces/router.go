@@ -19,7 +19,7 @@ var viewerServer *handler.Server
 func init() {
 	r := gin.Default()
 	r.Use(middleware.Cors())
-	adminServer = handler.NewDefaultServer(adminresolvers.NewExecutableSchema(adminresolvers.Config{Resolvers: &adminresolvers.Resolver{}}))
+	adminServer = handler.NewDefaultServer(adminresolvers.NewExecutableSchema(registry.AdminResolverConfig))
 	viewerServer = handler.NewDefaultServer(viewerresolvers.NewExecutableSchema(registry.ViewerResolverConfig))
 	viewerServer.Use(extension.FixedComplexityLimit(config.GraphQLComplexityOfViewer))
 
