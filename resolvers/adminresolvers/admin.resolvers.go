@@ -5,6 +5,7 @@ package adminresolvers
 
 import (
 	"context"
+	"github.com/hiroyky/nikki_backend/config"
 
 	"github.com/hiroyky/nikki_backend/domain/gql/adminmodel"
 	"github.com/hiroyky/nikki_backend/lib"
@@ -51,7 +52,7 @@ func (r *queryResolver) Article(ctx context.Context, id string) (*adminmodel.Art
 }
 
 func (r *queryResolver) Articles(ctx context.Context, page *adminmodel.Pagination) (*adminmodel.ArticleConnection, error) {
-	limit, offset := service.ValidateAdminPagination(page, 100)
+	limit, offset := service.ValidateAdminPagination(page, config.DefaultLimit, config.MaxLimit)
 	articles, err := service.FindArticles(ctx, nil, limit, offset)
 	if err != nil {
 		return nil, err
